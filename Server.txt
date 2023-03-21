@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <mysql/mysql.h>
+
+#define PORT 8080
+
+int main(int argc, char const *argv[]) {
+    int server_fd, new_socket;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+    char buffer[1024] = {0};
+
+    // Crea el socket del servidor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("Error al crear el socket");
+        exit(EXIT_FAILURE);
+    }
+
+    // Configura opciones del socket
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+        perror("Error al configurar el socket");
+        exit(EXIT_FAILURE);
+    }
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    // Vincula el socket al puerto
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) {
+        perror("Error al vincular el socket");
+        exit(EXIT_FAILURE);
+    }
+
+    // Comienza a escuchar por conexiones entrantes
+    if (listen(server_fd, 3) < 0) {
+        perror("Error al escuchar por conexiones");
+        exit(EXIT_FAILURE);
+    }
+
+    // Conecta a la base de datos
+    MYSQL *con = mysql_init(NULL);
+    if (con == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        exit(1);
+    }
+    if (mysql_real_connect(con, "localhost", "root", "TuPassword", "ajedrez", 0, NULL, 0) == NULL) {
+        fprintf(stderr, "%s\n", mysql_error(con));
+        mysql_close(con);
+        exit(1);
+    }
+
+    // Espera por conexiones entrantes y procesa solicitudes
+    while (1) {
+        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) {
+            perror("Error al aceptar una nueva conexión");
+            exit(EXIT_FAILURE);
+        }
+
+        // Lee la solicitud del cliente
+        int valread = read(new_socket, buffer, 1024);
+        if (valread <= 0) {
+            perror("Error al leer la solicitud del cliente");
+            exit(EXIT_FAILURE);
+        }
+
+        // Procesa la solicitud en la base de datos
+        char *query = buffer;
+        if (mysql_query(con, query)) {
+            fprintf(stderr, "%s\n", mysql_error(con));
+            exit(1);
+        }
+
+        // Envía la respuesta al cliente
+        MYSQL_RES *result = mysql_store_result(con);
+        int num_fields = mysql_num_fields(result);
+        MYSQL_ROW row;
+        while ((row = mysql_fetch_row(result))) {
+            for(int i = 0; i < num_fields; i++) {
+                write(new_socket, row[i], strlen(row
