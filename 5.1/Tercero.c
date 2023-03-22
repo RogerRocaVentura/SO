@@ -1,19 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-int libros_populares(int n, char *libros, char *resultados[]) {
-    int num_resultados = 0; // Inicializamos el contador de resultados a 0
-    char *token = strtok(libros, "/"); // Obtenemos el primer libro de la lista
-    while (token != NULL) {
-        char *titulo = strtok(token, "*"); // Separamos el título del precio
-        char *precio = strtok(NULL, "*");
-        int likes = atoi(precio); // Convertimos el precio a entero
-        if (likes > n) { // Comprobamos si el libro tiene más de N likes
-            resultados[num_resultados] = token; // Añadimos el libro al vector de resultados
-            num_resultados++; // Incrementamos el contador de resultados
-        }
-        token = strtok(NULL, "/"); // Obtenemos el siguiente libro de la lista
-    }
-    return num_resultados; // Devolvemos el número de resultados obtenidos
+struct libro {
+  char titulo[50];
+  int precio;
+  int likes;
+};
+
+int obtener_libros_populares(struct libro libros[], int n, char resultado[]);
+
+int main() {
+  int i, n, num_likes, num_libros_populares;
+  char resultado[500] = "";
+  struct libro libros[10] = {
+    {"La odisea", 20, 50},
+    {"Un mundo feliz", 15, 30},
+    {"La metamorfosis", 10, 25},
+    {"El gran Gatsby", 18, 40},
+    {"Cien años de soledad", 25, 60},
+    {"1984", 12, 35},
+    {"La Divina Comedia", 30, 70},
+    {"El viejo y el mar", 16, 45},
+    {"Matar a un ruiseñor", 22, 55},
+    {"Orgullo y prejuicio", 14, 20}
+  };
+
+  printf("Ingrese el número mínimo de likes para los libros: ");
+  scanf("%d", &num_likes);
+
+  num_libros_populares = obtener_libros_populares(libros, 10, resultado);
+
+  printf("\nLibros con más de %d likes:\n", num_likes);
+  for (i = 0; i < num_libros_populares; i++) {
+    printf("%s\n", resultado);
+    resultado += strlen(resultado) + 1; // Avanzar el puntero al siguiente libro
+  }
+
+  return 0;
 }
