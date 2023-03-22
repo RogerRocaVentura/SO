@@ -29,31 +29,6 @@ CREATE TABLE moves (
     FOREIGN KEY (game_id) REFERENCES games(id)
 );
 
-INSERT INTO players (id, name) VALUES (1, 'Roger Roca');
-INSERT INTO players (id, name) VALUES (2, 'Magnus Carlsen');
-
-INSERT INTO games (id, white_player_id, black_player_id, result) VALUES (1, 1, 2, '1-0');
-
-INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
-VALUES (1, 14, 'c4', 'c4', 'P', 'c4');
-
-INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
-VALUES (1, 15, 'd3', 'd3', 'P', 'd3');
-
-INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
-VALUES (1, 16, 'cxd5', 'cxd5', 'P', 'd5');
-
-INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
-VALUES (1, 17, 'Nxd5', 'Nxd5', 'N', 'd5');
-
-INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
-VALUES (1, 18, 'Bxd5', 'Bxd5', 'B', 'd5');
-
-INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
-VALUES (1, 19, 'Qxd5', 'Qxd5', 'Q', 'd5');
-
-INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
-VALUES (1, 20, 'Rad1', 'Rad1', 'R', 'a1');
 
 
 
