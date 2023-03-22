@@ -2,45 +2,34 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_TITULO 100
+
+
 struct libro {
-  char titulo[50];
+  char titulo[MAX_TITULO];
+  char autor[100];
   int precio;
   int likes;
 };
 
-int libros_con_mas_likes(struct libro* libros, int n_libros, int n_likes, char* resultado) {
-  int i, j = 0;
-  for (i = 0; i < n_libros; i++) {
-    if (libros[i].likes > n_likes) {
-      // Agregar título y precio al resultado
-      int len = strlen(libros[i].titulo) + 10; // +10 para precio máximo de 999999
-      char temp[len];
-      sprintf(temp, "%s*%d/", libros[i].titulo, libros[i].precio);
-      strcat(resultado, temp);
-      j++;
+char* libros_mas_populares(int N, struct Libro* libros, int num_libros) {
+  char* result = malloc(sizeof(char) * MAX_TITULO * num_libros);
+  int result_idx = 0;
+  
+  for (int i = 0; i < num_libros; i++) {
+    if (libros[i].likes > N) {
+      sprintf(result + result_idx, "%s*%d/", libros[i].titulo, libros[i].precio);
+      result_idx += strlen(libros[i].titulo) + 1 + snprintf(NULL, 0, "%d", libros[i].precio);
     }
   }
-  return j;
+  
+  if (result_idx > 0) {
+    result[result_idx - 1] = '\0';  // eliminamos el último '/'
+  } else {
+    result[0] = '\0';  // en caso de que no haya libros populares
+  }
+  
+  return result;
 }
 
-int main() {
-  struct libro mis_libros[] = {
-    {"La odisea", 23, 50},
-    {"Un mundo feliz", 42, 30},
-    {"La metamorfosis", 15, 10},
-    {"El principito", 30, 15},
-    {"1984", 25, 70},
-    {"El gran Gatsby", 50, 20},
-    {"Matar a un ruiseñor", 35, 5}
-  };
-  int n_libros = sizeof(mis_libros) / sizeof(struct libro);
-  char resultado[500] = "";
-  int n_likes = 20;
 
-  int n = libros_con_mas_likes(mis_libros, n_libros, n_likes, resultado);
-
-  printf("Libros con más de %d likes: %s\n", n_likes, resultado);
-  printf("Total de libros: %d\n", n);
-
-  return 0;
-}
