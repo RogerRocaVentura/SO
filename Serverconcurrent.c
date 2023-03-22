@@ -106,15 +106,15 @@ int main(int argc, char const* argv[]) {
         perror("Listen failed");
         exit(EXIT_FAILURE);
     }
-    
+
     // Main loop to handle incoming connections
     while (true) {
         // Accept incoming connection
-        if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+        if ((client_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
             perror("Accept failed");
             exit(EXIT_FAILURE);
         }
-        
+
         // Handle client in new thread/process
         pid_t pid = fork();
         if (pid == 0) {
@@ -122,12 +122,13 @@ int main(int argc, char const* argv[]) {
             close(server_fd);
             handle_client(client_socket);
             exit(0);
-        } else if (pid > 0) {
+        }
+        else if (pid > 0) {
             // Parent process
             close(client_socket);
-        } else {
+        }
+        else {
             perror("Fork failed");
             exit(EXIT_FAILURE);
         }
     }
-    
