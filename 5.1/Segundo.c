@@ -33,3 +33,30 @@ char* libros_mas_populares(int N, struct Libro* libros, int num_libros) {
 }
 
 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#char* libros_populares(int likes[], char* titulos[], int precios[], int n, int N) {
+    #char** libros = (char**) malloc(n * sizeof(char*));
+    #int num_libros = 0;
+
+    #for (int i = 0; i < n; i++) {
+        #if (likes[i] > N) {
+         #   char* titulo_precio = (char*) malloc(100 * sizeof(char));
+          #  sprintf(titulo_precio, "%s*%d", titulos[i], precios[i]);
+           # libros[num_libros++] = titulo_precio;
+        }
+    }
+
+    # char* resultado = (char*) malloc(1000 * sizeof(char));
+   # strcpy(resultado, libros[0]);
+   # for (int i = 1; i < num_libros; i++) {
+    #    strcat(resultado, "/");
+     #   strcat(resultado, libros[i]);
+    }
+
+   # return resultado;
+}
+
