@@ -34,18 +34,27 @@ INSERT INTO players (id, name) VALUES (2, 'Magnus Carlsen');
 
 INSERT INTO games (id, white_player_id, black_player_id, result) VALUES (1, 1, 2, '1-0');
 
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 1, 'e4');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 2, 'e5');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 3, 'Nf3');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 4, 'Nc6');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 5, 'Bb5');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 6, 'a6');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 7, 'Ba4');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 8, 'Nf6');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 9, 'O-O');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 10, 'Be7');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 11, 'Re1');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 12, 'b5');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 13, 'Bb3');
+INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
+VALUES (1, 14, 'c4', 'c4', 'P', 'c4');
+
+INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
+VALUES (1, 15, 'd3', 'd3', 'P', 'd3');
+
+INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
+VALUES (1, 16, 'cxd5', 'cxd5', 'P', 'd5');
+
+INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
+VALUES (1, 17, 'Nxd5', 'Nxd5', 'N', 'd5');
+
+INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
+VALUES (1, 18, 'Bxd5', 'Bxd5', 'B', 'd5');
+
+INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
+VALUES (1, 19, 'Qxd5', 'Qxd5', 'Q', 'd5');
+
+INSERT INTO moves (game_id, move_number, move_text, algebraic_notation, moved_piece, moved_to_square)
+VALUES (1, 20, 'Rad1', 'Rad1', 'R', 'a1');
+
+
 
 
