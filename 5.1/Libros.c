@@ -9,9 +9,5 @@ struct libro {
 
 int main() {
   struct libro libros[100];
-  
-  libros[0].precio = 20;
-  libros[1].likes = 50;
- 
   return 0;
 }
