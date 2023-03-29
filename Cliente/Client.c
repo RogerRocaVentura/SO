@@ -1,88 +1,96 @@
-#include <mysql.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
-#define DB_HOST "localhost"
-#define DB_USER "root"
-#define DB_PASS "password"
-#define DB_NAME "ChessDB"
+#define SERVER_ADDRESS "127.0.0.1"
+#define SERVER_PORT 8888
+#define BUFFER_SIZE 1024
 
-MYSQL* conn;
+void insert_player(int sock) {
+    char message[BUFFER_SIZE], buffer[BUFFER_SIZE];
 
-int ConexiónDB() {
-    conn = mysql_init(NULL);
-    if (conn == NULL) {
-        fprintf(stderr, "Error inicializando: %s\n", mysql_error(conn));
-        return 0;
-    }
+    printf("Enter player name: ");
+    fgets(message, BUFFER_SIZE, stdin);
+    send(sock, message, strlen(message), 0);
 
-    if (mysql_real_connect(conn, DB_HOST, DB_USER, DB_PASS, DB_NAME, 0, NULL, 0) == NULL) {
-        fprintf(stderr, "Error de conexión: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        return 0;
-    }
+    printf("Enter player ELO rating: ");
+    fgets(message, BUFFER_SIZE, stdin);
+    send(sock, message, strlen(message), 0);
 
-    return 1;
+    recv(sock, buffer, BUFFER_SIZE, 0);
+    printf("%s", buffer);
 }
 
-void close_db_connection() {
-    mysql_close(conn);
+void delete_player(int sock) {
+    char message[BUFFER_SIZE], buffer[BUFFER_SIZE];
+
+    printf("Enter player name to delete: ");
+    fgets(message, BUFFER_SIZE, stdin);
+    send(sock, message, strlen(message), 0);
+
+    recv(sock, buffer, BUFFER_SIZE, 0);
+    printf("%s", buffer);
 }
 
-int insert_player(char* name, char* country, char* date_of_birth, int rating) {
-    char query[256];
-    sprintf(query, "Insertar en (name, country, date_of_birth, rating) VALUES ('%s', '%s', '%s', %d)", name, country, date_of_birth, rating);
+void list_players(int sock) {
+    char buffer[BUFFER_SIZE];
 
-    if (mysql_query(conn, query)) {
-        fprintf(stderr, "Error al insertar jugador: %s\n", mysql_error(conn));
-        return 0;
+    send(sock, "list", strlen("list"), 0);
+
+    while (recv(sock, buffer, BUFFER_SIZE, 0) > 0) {
+        printf("%s", buffer);
     }
-
-    return 1;
 }
 
-void print_player_info(MYSQL_ROW row) {
-    printf("ID: %s\n", row[0]);
-    printf("Nombre: %s\n", row[1]);
-    printf("País: %s\n", row[2]);
-    printf("Fecha de nacimiento: %s\n", row[3]);
-    printf("Elo: %s\n", row[4]);
-}
-
-void select_players() {
-    if (mysql_query(conn, "Seleccione jugador")) {
-        fprintf(stderr, "Error al seleccionar jugador: %s\n", mysql_error(conn));
-        return;
-    }
-
-    MYSQL_RES* result = mysql_store_result(conn);
-    if (result == NULL) {
-        fprintf(stderr, "Error al guardar el resultado: %s\n", mysql_error(conn));
-        return;
-    }
-
-    printf("Jugadores:\n");
-    while (MYSQL_ROW row = mysql_fetch_row(result)) {
-        print_player_info(row);
-        printf("\n");
-    }
-
-    mysql_free_result(result);
+void quit(int sock) {
+    send(sock, "quit", strlen("quit"), 0);
+    close(sock);
+    exit(EXIT_SUCCESS);
 }
 
 int main() {
-    if (!connect_to_db()) {
+    int sock = 0, read_size;
+    struct sockaddr_in server;
+    char message[BUFFER_SIZE], buffer[BUFFER_SIZE];
+
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Failed to create socket\n");
         exit(EXIT_FAILURE);
     }
 
-    insert_player("Viswanathan Anand", "India", "1969-12-11", 2770);
-    insert_player("Vladimir Kramnik", "Russia", "1975-06-25", 2782);
+    server.sin_family = AF_INET;
+    server.sin_port = htons(SERVER_PORT);
 
-    select_players();
+    if (inet_pton(AF_INET, SERVER_ADDRESS, &server.sin_addr) <= 0) {
+        perror("Invalid address\n");
+        exit(EXIT_FAILURE);
+    }
 
-    close_db_connection();
+    if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
+        perror("Failed to connect to server\n");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Enter command: ");
+    fgets(message, BUFFER_SIZE, stdin);
+
+    if (send(sock, message, strlen(message), 0) < 0) {
+        perror("Failed to send data to server\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (strcmp(message, "insert\n") == 0) {
+        insert_player(sock);
+    } else if (strcmp(message, "delete\n") == 0) {
+        delete_player(sock);
+    } else if (strcmp(message, "list\n") == 0) {
+        list_players(sock);
+    } else if (strcmp(message, "quit\n") == 0) {
+        quit(sock);
+    }
 
     return 0;
 }
-

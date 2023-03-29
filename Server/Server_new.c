@@ -43,46 +43,36 @@ void handle_client(int client_socket) {
     while ((read_size = recv(client_socket, buffer, BUFFER_SIZE, 0)) > 0) {
         buffer[read_size] = '\0';
 
-        char *token;
-        token = strtok(buffer, " ");
+        if (strcmp(buffer, "exit") == 0) {
+            break;
+        }
 
-        if (strcmp(token, "Seleccionar") == 0) {
-            MYSQL_RES *result;
-            MYSQL_ROW row;
+        if (mysql_query(conn, buffer)) {
+            fprintf(stderr, "Error en la consulta: %s\n", mysql_error(conn));
+            return;
+        }
 
-            if (mysql_query(conn, buffer)) {
-                fprintf(stderr, "Error al seleccionar: %s\n", mysql_error(conn));
+        MYSQL_RES *result;
+        MYSQL_ROW row;
+
+        result = mysql_store_result(conn);
+
+        if (result == NULL) {
+            if (send(client_socket, mysql_error(conn), strlen(mysql_error(conn)), 0) < 0) {
+                fprintf(stderr, "Error al enviar los datos al cliente\n");
                 return;
             }
-
-            result = mysql_store_result(conn);
-
+        } else {
             while ((row = mysql_fetch_row(result))) {
-                sprintf(buffer, "ID: %s\nName: %s\nCountry: %s\nDate of Birth: %s\nRating: %s\n",
-                    row[0], row[1], row[2], row[3], row[4]);
+                sprintf(buffer, "%s, %s, %s, %s, %s\n", row[0], row[1], row[2], row[3], row[4]);
 
                 if (send(client_socket, buffer, strlen(buffer), 0) < 0) {
-                    fprintf(stderr, "Error al enviar los datos\n");
+                    fprintf(stderr, "Error al enviar los datos al cliente\n");
                     return;
                 }
             }
 
             mysql_free_result(result);
-        } else if (strcmp(token, "Insertar") == 0) {
-            if (mysql_query(conn, buffer)) {
-                fprintf(stderr, "Error al insertar: %s\n", mysql_error(conn));
-                return;
-            }
-
-            if (send(client_socket, "Jugador insertado\n", strlen("Jugador insertado\n"), 0) < 0) {
-                fprintf(stderr, "Error al enviar los datos al cliente\n");
-                return;
-            }
-        } else {
-            if (send(client_socket, "Comando inválido\n", strlen("Comando inválido\n"), 0) < 0) {
-                fprintf(stderr, "Error al enviar los datos al cliente\n");
-                return;
-            }
         }
     }
 
@@ -123,7 +113,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("El servidor está funcionando en el puerto: %d\n", PORT);
+        printf("El servidor está funcionando en el puerto: %d\n", PORT);
 
     while (1) {
         if ((client_socket = accept(server_socket, (struct sockaddr *)&client_addr, (socklen_t *)&addrlen)) < 0) {
@@ -141,3 +131,5 @@ int main() {
 close_db_connection();
 
 return 0;
+
+}
