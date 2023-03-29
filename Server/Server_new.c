@@ -19,12 +19,12 @@ MYSQL *conn;
 int connect_to_db() {
     conn = mysql_init(NULL);
     if (conn == NULL) {
-        fprintf(stderr, "Failed to initialize database connection: %s\n", mysql_error(conn));
+        fprintf(stderr, "Error al inicializar la base de datos: %s\n", mysql_error(conn));
         return 0;
     }
 
     if (mysql_real_connect(conn, DB_HOST, DB_USER, DB_PASS, DB_NAME, 0, NULL, 0) == NULL) {
-        fprintf(stderr, "Failed to connect to database: %s\n", mysql_error(conn));
+        fprintf(stderr, "Error al conectarse a la base de datos: %s\n", mysql_error(conn));
         mysql_close(conn);
         return 0;
     }
@@ -46,12 +46,12 @@ void handle_client(int client_socket) {
         char *token;
         token = strtok(buffer, " ");
 
-        if (strcmp(token, "SELECT") == 0) {
+        if (strcmp(token, "Seleccionar") == 0) {
             MYSQL_RES *result;
             MYSQL_ROW row;
 
             if (mysql_query(conn, buffer)) {
-                fprintf(stderr, "Failed to select players: %s\n", mysql_error(conn));
+                fprintf(stderr, "Error al seleccionar: %s\n", mysql_error(conn));
                 return;
             }
 
@@ -62,25 +62,25 @@ void handle_client(int client_socket) {
                     row[0], row[1], row[2], row[3], row[4]);
 
                 if (send(client_socket, buffer, strlen(buffer), 0) < 0) {
-                    fprintf(stderr, "Failed to send data to client\n");
+                    fprintf(stderr, "Error al enviar los datos\n");
                     return;
                 }
             }
 
             mysql_free_result(result);
-        } else if (strcmp(token, "INSERT") == 0) {
+        } else if (strcmp(token, "Insertar") == 0) {
             if (mysql_query(conn, buffer)) {
-                fprintf(stderr, "Failed to insert player: %s\n", mysql_error(conn));
+                fprintf(stderr, "Error al insertar: %s\n", mysql_error(conn));
                 return;
             }
 
-            if (send(client_socket, "Player inserted\n", strlen("Player inserted\n"), 0) < 0) {
-                fprintf(stderr, "Failed to send data to client\n");
+            if (send(client_socket, "Jugador insertado\n", strlen("Jugador insertado\n"), 0) < 0) {
+                fprintf(stderr, "Error al enviar los datos al cliente\n");
                 return;
             }
         } else {
-            if (send(client_socket, "Invalid command\n", strlen("Invalid command\n"), 0) < 0) {
-                fprintf(stderr, "Failed to send data to client\n");
+            if (send(client_socket, "Comando inválido\n", strlen("Comando inválido\n"), 0) < 0) {
+                fprintf(stderr, "Error al enviar los datos al cliente\n");
                 return;
             }
         }
@@ -100,12 +100,12 @@ int main() {
     }
 
     if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("Failed to create server socket\n");
+        perror("Error creando el socket\n");
         exit(EXIT_FAILURE);
     }
 
     if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        perror("Failed to set socket options\n");
+        perror("Error inicializando el socket\n");
         exit(EXIT_FAILURE);
     }
 
@@ -114,28 +114,28 @@ int main() {
     server_addr.sin_port = htons(PORT);
 
     if (bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        perror("Failed to bind server socket\n");
+        perror("Error en el bind\n");
         exit(EXIT_FAILURE);
     }
 
     if (listen(server_socket, 5) < 0) {
-        perror("Failed to listen to server socket\n");
+        perror("Error escuchando\n");
         exit(EXIT_FAILURE);
     }
 
-    printf("Server is running on port %d\n", PORT);
+    printf("El servidor está funcionando en el puerto: %d\n", PORT);
 
     while (1) {
         if ((client_socket = accept(server_socket, (struct sockaddr *)&client_addr, (socklen_t *)&addrlen)) < 0) {
-            perror("Failed to accept client connection\n");
+            perror("Error al aceptar la conexión\n");
             exit(EXIT_FAILURE);
          }
 
-        printf("New client connection accepted\n");
+        printf("Nuevo cliente aceptado\n");
 
         handle_client(client_socket);
 
-        printf("Client connection closed\n");
+        printf("Conexión cerrada\n");
      }
 
 close_db_connection();
