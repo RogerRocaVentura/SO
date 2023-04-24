@@ -1,42 +1,37 @@
+CREATE DATABASE chess_db;
+
+USE chess_db;
+
 CREATE TABLE players (
-    id INT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    country VARCHAR(255) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    rating INT NOT NULL
 );
 
 CREATE TABLE games (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     white_player_id INT NOT NULL,
     black_player_id INT NOT NULL,
-    result VARCHAR(10),
+    date_played DATE NOT NULL,
+    result VARCHAR(10) NOT NULL,
+    moves TEXT NOT NULL,
     FOREIGN KEY (white_player_id) REFERENCES players(id),
-    FOREIGN KEY (black_player_id) REFERENCES players(id)
+    FOREIGN KEY (black_player_id) REFERENCES players(id),
 );
 
-CREATE TABLE moves (
-    game_id INT NOT NULL,
-    move_number INT NOT NULL,
-    move_text VARCHAR(10) NOT NULL,
-    PRIMARY KEY (game_id, move_number),
-    FOREIGN KEY (game_id) REFERENCES games(id)
-);
+INSERT INTO players (name, country, date_of_birth, rating)
+VALUES ('Magnus Carlsen', 'Norway', '1990-11-30', 2847),
+       ('Fabiano Caruana', 'United States', '1992-07-30', 2820),
+       ('Ding Liren', 'China', '1992-10-24', 2805),
+       ('Ian Nepomniachtchi', 'Russia', '1990-07-14', 2801),
+       ('Levon Aronian', 'Armenia', '1982-10-06', 2797),
+       ('Wesley So', 'United States', '1993-10-09', 2784),
+       ('Alexander Grischuk', 'Russia', '1983-10-31', 2777),
+       ('Shakhriyar Mamedyarov', 'Azerbaijan', '1985-04-12', 2770),
+       ('Maxime Vachier-Lagrave', 'France', '1990-10-21', 2760),
+       ('Anish Giri', 'Netherlands', '1994-06-28', 2759);
 
-INSERT INTO players (id, name) VALUES (1, 'Roger Roca');
-INSERT INTO players (id, name) VALUES (2, 'Magnus Carlsen');
-
-INSERT INTO games (id, white_player_id, black_player_id, result) VALUES (1, 1, 2, '1-0');
-
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 1, 'e4');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 2, 'e5');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 3, 'Nf3');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 4, 'Nc6');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 5, 'Bb5');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 6, 'a6');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 7, 'Ba4');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 8, 'Nf6');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 9, 'O-O');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 10, 'Be7');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 11, 'Re1');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 12, 'b5');
-INSERT INTO moves (game_id, move_number, move_text) VALUES (1, 13, 'Bb3');
 
 
